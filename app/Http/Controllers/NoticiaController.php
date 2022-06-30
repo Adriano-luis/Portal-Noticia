@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Noticia;
-use App\Http\Requests\StoreNoticiaRequest;
-use App\Http\Requests\UpdateNoticiaRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class NoticiaController extends Controller
 {
@@ -15,7 +15,19 @@ class NoticiaController extends Controller
      */
     public function index()
     {
-        $noticias = Noticia::orderByDesc('created_at')->limit(10)->get();
+        // Cache::put('site', 'adriano.com.br', 10);
+        // //key, value and time in seconds to expired the data
+
+        // echo Cache::get('site');
+        $noticias = [];
+        
+        if(Cache::has('ten_first_news')){
+            $noticias = Cache::get('ten_first_news');
+        }else{
+            $noticias = Noticia::orderByDesc('created_at')->limit(10)->get();
+            Cache::put('ten_first_news', $noticias, 15);
+        }
+
 
         return view('noticia', ['noticias' => $noticias]);
     }
@@ -33,10 +45,10 @@ class NoticiaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreNoticiaRequest  $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreNoticiaRequest $request)
+    public function store(Request $request)
     {
         //
     }
@@ -66,11 +78,11 @@ class NoticiaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateNoticiaRequest  $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Noticia  $noticia
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateNoticiaRequest $request, Noticia $noticia)
+    public function update(Request $request, Noticia $noticia)
     {
         //
     }
