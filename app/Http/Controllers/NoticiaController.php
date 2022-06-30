@@ -19,14 +19,21 @@ class NoticiaController extends Controller
         // //key, value and time in seconds to expired the data
 
         // echo Cache::get('site');
-        $noticias = [];
         
-        if(Cache::has('ten_first_news')){
-            $noticias = Cache::get('ten_first_news');
-        }else{
-            $noticias = Noticia::orderByDesc('created_at')->limit(10)->get();
-            Cache::put('ten_first_news', $noticias, 15);
-        }
+        $noticias = [];
+
+        // if(Cache::has('ten_first_news')){
+        //     $noticias = Cache::get('ten_first_news');
+        // }else{
+        //     $noticias = Noticia::orderByDesc('created_at')->limit(10)->get();
+        //     Cache::put('ten_first_news', $noticias, 15);
+        // }
+
+        //if ten_first_news exists, will use the cache
+        //if not exists will set the velue using the callback function
+        $noticias = Cache::remember('ten_first_news', 15, function (){
+            return Noticia::orderByDesc('created_at')->limit(10)->get();
+        });
 
 
         return view('noticia', ['noticias' => $noticias]);
